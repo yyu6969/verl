@@ -1,0 +1,52 @@
+set -x
+
+train_files=examples/data/tiny/tiny_train.parquet
+test_files=examples/data/tiny/tiny_test.parquet
+
+python3 -m verl.trainer.main_ppo --config-path=./config --config-name='ppo_trainer'\
+    data.train_files="$train_files" \
+    data.val_files="$test_files" \
+    data.train_batch_size=16 \
+    data.max_prompt_length=128 \
+    data.max_response_length=128 \
+    data.filter_overlong_prompts=True \
+    data.truncation=left \
+    actor_rollout_ref.model.path=meta-llama/Meta-Llama-3-8B-Instruct \
+    actor_rollout_ref.model.enable_gradient_checkpointing=True \
+    actor_rollout_ref.actor.optim.lr=1e-6 \
+    actor_rollout_ref.actor.ppo_mini_batch_size=4 \
+    actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=1 \
+    actor_rollout_ref.actor.use_dynamic_bsz=True \
+    actor_rollout_ref.actor.ppo_max_token_len_per_gpu=4096 \
+    actor_rollout_ref.actor.fsdp_config.param_offload=True \
+    actor_rollout_ref.actor.fsdp_config.optimizer_offload=True \
+    actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=1 \
+    actor_rollout_ref.rollout.tensor_model_parallel_size=1 \
+    actor_rollout_ref.rollout.name=vllm \
+    actor_rollout_ref.rollout.gpu_memory_utilization=0.65 \
+    actor_rollout_ref.ref.log_prob_micro_batch_size_per_gpu=1 \
+    actor_rollout_ref.ref.fsdp_config.param_offload=True \
+    critic.optim.lr=1e-5 \
+    critic.model.path=meta-llama/Meta-Llama-3-8B-Instruct \
+    critic.model.enable_gradient_checkpointing=True \
+    critic.ppo_micro_batch_size_per_gpu=1 \
+    critic.forward_micro_batch_size_per_gpu=1 \
+    critic.use_dynamic_bsz=True \
+    critic.ppo_max_token_len_per_gpu=4096 \
+    critic.forward_max_token_len_per_gpu=4096 \
+    critic.model.fsdp_config.param_offload=True \
+    reward_model.enable=True \
+    reward_model.model.path=RLHFlow/ArmoRM-Llama3-8B-v0.1 \
+    reward_model.micro_batch_size_per_gpu=1 \
+    reward_model.use_dynamic_bsz=True \
+    reward_model.model.fsdp_config.param_offload=True \
+    algorithm.kl_ctrl.kl_coef=0.001 \
+    trainer.critic_warmup=0 \
+    trainer.logger="['console','wandb']" \
+    trainer.project_name=llama3_rlhf_training_single_gpu \
+    trainer.experiment_name=llama3_8b_with_armorm \
+    trainer.n_gpus_per_node=4 \
+    trainer.nnodes=1 \
+    trainer.save_freq=5 \
+    trainer.test_freq=5 \
+    trainer.total_epochs=30

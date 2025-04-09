@@ -1,0 +1,124 @@
+
+=== TRAIN DATASET ===
+Dataset shape: (6692317, 11)
+Columns: ['qid', 'question', 'date', 'metadata', 'response_j', 'response_k', 'data_source', 'prompt', 'ability', 'reward_model', 'extra_info']
+
+=== Sample Record ===
+
+--- qid ---
+33266832
+
+--- question ---
+"Im trying to make an if statement like this:\n\n```\nif(boolean1 AND boolean2 AND boolean3 == true){\n   [Do this....]\n}\n\n```\n\nis there a way to do an if statement in that format or will i have to do it like this:\n\n```\nif(boolean1 = true & boolean2 = true ect...){}\n\n```"
+
+--- date ---
+"2015/10/21"
+
+--- metadata ---
+[
+  "https://Stackoverflow.com/questions/33266832",
+  "https://Stackoverflow.com",
+  "https://Stackoverflow.com/users/4724265/"
+]
+
+--- response_j ---
+"Least you can get is \n\n```\nif(boolean1 && boolean2 && boolean3 &&..){\n\n}\n\n```\n\nBecause since they are already booleans you need not to check for their value. Afaik, no other simple way. \n\nIf you have toooooooo many, create an array and write a simple util method to check if any is `false`"
+
+--- response_k ---
+"Yes, but you need two `&`(s) for logical and (one is a bitwise and). Also, one equals is assignment (you need two, or none). Something like,\n\n```\nif (boolean1 && boolean2 && boolean3){\n    // ...\n}\n\n```"
+
+--- data_source ---
+"lvwerra/stack-exchange-paired"
+
+--- prompt ---
+[
+  {
+    "content": "Im trying to make an if statement like this:\n\n```\nif(boolean1 AND boolean2 AND boolean3 == true){\n   [Do this....]\n}\n\n```\n\nis there a way to do an if statement in that format or will i have to do it like this:\n\n```\nif(boolean1 = true & boolean2 = true ect...){}\n\n```",
+    "role": "user"
+  }
+]
+
+--- ability ---
+"qa"
+
+--- reward_model ---
+{
+  "chosen": "Least you can get is \n\n```\nif(boolean1 && boolean2 && boolean3 &&..){\n\n}\n\n```\n\nBecause since they are already booleans you need not to check for their value. Afaik, no other simple way. \n\nIf you have toooooooo many, create an array and write a simple util method to check if any is `false`",
+  "rejected": "Yes, but you need two `&`(s) for logical and (one is a bitwise and). Also, one equals is assignment (you need two, or none). Something like,\n\n```\nif (boolean1 && boolean2 && boolean3){\n    // ...\n}\n\n```",
+  "style": "preference"
+}
+
+--- extra_info ---
+{
+  "date": "2015/10/21",
+  "index": 0,
+  "metadata": [
+    "https://Stackoverflow.com/questions/33266832",
+    "https://Stackoverflow.com",
+    "https://Stackoverflow.com/users/4724265/"
+  ],
+  "qid": 33266832,
+  "split": "train"
+}
+
+=== TEST DATASET ===
+Dataset shape: (743591, 11)
+Columns: ['qid', 'question', 'date', 'metadata', 'response_j', 'response_k', 'data_source', 'prompt', 'ability', 'reward_model', 'extra_info']
+
+=== Sample Record ===
+
+--- qid ---
+27875631
+
+--- question ---
+"I am using Hangfire and like the software very much! But one thing I am missing is how to add a recurring job that executes every few minutes (e.g. every 15 minutes). Is there a way to achieve this?"
+
+--- date ---
+"2015/01/10"
+
+--- metadata ---
+[
+  "https://Stackoverflow.com/questions/27875631",
+  "https://Stackoverflow.com",
+  "https://Stackoverflow.com/users/1862812/"
+]
+
+--- response_j ---
+"Currently I am using this approach:\n\n```\nRecurringJob.AddOrUpdate(() => Console.Write(\"Recurring\"), \"*/15 * * * *\");\n\n```\n\nAnd is working like a charm.\n\nReference to my question in Hangfire forums: <http://discuss.hangfire.io/t/how-to-create-cron-job-that-is-executing-every-15-minutes/533>"
+
+--- response_k ---
+"Looking at Hangfire.Cron class I don't know if it's possible.\n\nA workaround would be to create four different schedules i.e:\n\n```\nRecurringJob.AddOrUpdate(\n    () => Console.WriteLine(\"Transparent!\"), \n    Cron.Hourly(0));\n\nRecurringJob.AddOrUpdate(\n    () => Console.WriteLine(\"Transparent!\"), \n    Cron.Hourly(15));\n\nRecurringJob.AddOrUpdate(\n    () => Console.WriteLine(\"Transparent!\"), \n    Cron.Hourly(30));\n\nRecurringJob.AddOrUpdate(\n    () => Console.WriteLine(\"Transparent!\"), \n    Cron.Hourly(45));\n\n```"
+
+--- data_source ---
+"lvwerra/stack-exchange-paired"
+
+--- prompt ---
+[
+  {
+    "content": "I am using Hangfire and like the software very much! But one thing I am missing is how to add a recurring job that executes every few minutes (e.g. every 15 minutes). Is there a way to achieve this?",
+    "role": "user"
+  }
+]
+
+--- ability ---
+"qa"
+
+--- reward_model ---
+{
+  "chosen": "Currently I am using this approach:\n\n```\nRecurringJob.AddOrUpdate(() => Console.Write(\"Recurring\"), \"*/15 * * * *\");\n\n```\n\nAnd is working like a charm.\n\nReference to my question in Hangfire forums: <http://discuss.hangfire.io/t/how-to-create-cron-job-that-is-executing-every-15-minutes/533>",
+  "rejected": "Looking at Hangfire.Cron class I don't know if it's possible.\n\nA workaround would be to create four different schedules i.e:\n\n```\nRecurringJob.AddOrUpdate(\n    () => Console.WriteLine(\"Transparent!\"), \n    Cron.Hourly(0));\n\nRecurringJob.AddOrUpdate(\n    () => Console.WriteLine(\"Transparent!\"), \n    Cron.Hourly(15));\n\nRecurringJob.AddOrUpdate(\n    () => Console.WriteLine(\"Transparent!\"), \n    Cron.Hourly(30));\n\nRecurringJob.AddOrUpdate(\n    () => Console.WriteLine(\"Transparent!\"), \n    Cron.Hourly(45));\n\n```",
+  "style": "preference"
+}
+
+--- extra_info ---
+{
+  "date": "2015/01/10",
+  "index": 0,
+  "metadata": [
+    "https://Stackoverflow.com/questions/27875631",
+    "https://Stackoverflow.com",
+    "https://Stackoverflow.com/users/1862812/"
+  ],
+  "qid": 27875631,
+  "split": "test"
+}
