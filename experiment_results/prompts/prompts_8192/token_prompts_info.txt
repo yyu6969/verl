@@ -1,0 +1,45 @@
+Token-Controlled Prompts
+=======================
+
+Prompt 1:
+  Target tokens: 255
+  Actual tokens: 255
+  Numbers: 83
+  Characters: 346
+  First 50 chars: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, ...
+
+Prompt 2:
+  Target tokens: 510
+  Actual tokens: 510
+  Numbers: 168
+  Characters: 754
+  First 50 chars: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, ...
+
+Prompt 3:
+  Target tokens: 1023
+  Actual tokens: 1023
+  Numbers: 339
+  Characters: 1609
+  First 50 chars: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, ...
+
+Prompt 4:
+  Target tokens: 2046
+  Actual tokens: 2046
+  Numbers: 680
+  Characters: 3314
+  First 50 chars: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, ...
+
+Prompt 5:
+  Target tokens: 4094
+  Actual tokens: 4094
+  Numbers: 1272
+  Characters: 6546
+  First 50 chars: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, ...
+
+Prompt 6:
+  Target tokens: 8190
+  Actual tokens: 8190
+  Numbers: 2296
+  Characters: 12690
+  First 50 chars: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, ...
+

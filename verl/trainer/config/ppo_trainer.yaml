@@ -24,6 +24,7 @@ actor_rollout_ref:
     use_remove_padding: False
   actor:
     strategy: fsdp  # This is for backward-compatibility
+    loss_agg_mode: "token-mean"
     ppo_mini_batch_size: 256
     ppo_micro_batch_size: null # will be deprecated, use ppo_micro_batch_size_per_gpu
     ppo_micro_batch_size_per_gpu: null
@@ -31,6 +32,8 @@ actor_rollout_ref:
     ppo_max_token_len_per_gpu: 16384 # n * ${data.max_prompt_length} + ${data.max_response_length}
     grad_clip: 1.0
     clip_ratio: 0.2
+    clip_ratio_high: 0.2
+    clip_ratio_low: 0.2
     entropy_coeff: 0.001
     use_kl_loss: False # True for GRPO
     use_torch_compile: True # False to disable torch compile
@@ -143,6 +146,7 @@ critic:
   cliprange_value: 0.5
   checkpoint:
     contents: ['model', 'optimizer', 'extra']  # with 'hf_model' you can save whole model as hf format, now only use sharded model checkpoint to save space
+  rollout_n: ${actor_rollout_ref.rollout.n}
 
 reward_model:
   enable: False
@@ -176,6 +180,7 @@ algorithm:
   lam: 1.0
   adv_estimator: gae
   kl_penalty: kl  # how to estimate kl divergence
+  use_kl_in_reward: true
   kl_ctrl:
     type: fixed
     kl_coef: 0.001

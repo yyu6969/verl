@@ -171,6 +171,7 @@ reward_model:
     virtual_pipeline_model_parallel_size: null # change VPP interface for parallelism tests
     sequence_parallel: True
     use_distributed_optimizer: True
+    pad_vocab_size_to: 128258
     seed: 1
   model:
     input_tokenizer: ${actor_rollout_ref.model.path}  # set this to null if the chat template is identical
@@ -185,7 +186,7 @@ reward_model:
 
 custom_reward_function:
   path: null
-  name: compute_score
+  name: null
 
 algorithm:
   gamma: 1.0

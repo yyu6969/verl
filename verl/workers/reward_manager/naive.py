@@ -61,17 +61,17 @@ class NaiveRewardManager:
             prompt_str = self.tokenizer.decode(valid_prompt_ids, skip_special_tokens=True)
             response_str = self.tokenizer.decode(valid_response_ids, skip_special_tokens=True)
 
-            ground_truth = data_item.non_tensor_batch['reward_model']['ground_truth']
+            reward_model_data = data_item.non_tensor_batch.get('reward_model', {})
+            chosen = reward_model_data.get('chosen')
+            rejected = reward_model_data.get('rejected')
 
-            data_source = data_item.non_tensor_batch[self.reward_fn_key]
-
+            # Keep the extra_info definition 
             extra_info = data_item.non_tensor_batch.get('extra_info', None)
 
             score = self.compute_score(
-                data_source=data_source,
-                solution_str=response_str,
-                ground_truth=ground_truth,
-                extra_info=extra_info,
+                response=response_str,
+                chosen=chosen,
+                rejected=rejected
             )
 
             if isinstance(score, dict):
@@ -84,14 +84,15 @@ class NaiveRewardManager:
 
             reward_tensor[i, valid_response_length - 1] = reward
 
-            if data_source not in already_print_data_sources:
-                already_print_data_sources[data_source] = 0
+            if data_item.non_tensor_batch[self.reward_fn_key] not in already_print_data_sources:
+                already_print_data_sources[data_item.non_tensor_batch[self.reward_fn_key]] = 0
 
-            if already_print_data_sources[data_source] < self.num_examine:
-                already_print_data_sources[data_source] += 1
+            if already_print_data_sources[data_item.non_tensor_batch[self.reward_fn_key]] < self.num_examine:
+                already_print_data_sources[data_item.non_tensor_batch[self.reward_fn_key]] += 1
                 print("[prompt]", prompt_str)
                 print("[response]", response_str)
-                print("[ground_truth]", ground_truth)
+                print("[chosen]", chosen)
+                print("[rejected]", rejected)
                 if isinstance(score, dict):
                     for key, value in score.items():
                         print(f"[{key}]", value)

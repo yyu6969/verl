@@ -266,15 +266,25 @@ def get_parallel_model_from_config(config,
     return model
 
 
-def _get_parallel_model_architecture_from_config(config: PretrainedConfig, value=False) -> Type[nn.Module]:
-    architectures = getattr(config, "architectures", [])
-    for arch in architectures:
-        model_cls = ModelRegistry.load_model_cls(arch, value)
-        print(f'after load model cls')
-        if model_cls is not None:
-            return model_cls
-    raise ValueError(f"Model architectures {architectures} are not supported for now. "
-                     f"Supported architectures: {ModelRegistry.get_supported_archs()}")
+def _get_parallel_model_architecture_from_config(config, value=False):
+    """Get the model class based on config."""
+    from verl.models.llama.megatron.modeling_llama_megatron import (
+        ParallelLlamaForCausalLM,
+        ParallelLlamaForSequenceClassification
+    )
+    
+    architectures = getattr(config, "architectures", None)
+    if architectures is None:
+        raise ValueError("No architectures specified in config")
+        
+    architecture = architectures[0]
+    if architecture == "LlamaForSequenceClassification":
+        return ParallelLlamaForSequenceClassification
+    elif architecture == "LlamaForCausalLM":
+        return ParallelLlamaForCausalLM
+    else:
+        raise ValueError(f"Model architectures {architectures} are not supported for now. "
+                        f"Supported architectures: ['LlamaForCausalLM', 'LlamaForSequenceClassification']")
 
 
 def load_megatron_model_weights(config,
@@ -424,8 +434,15 @@ def get_parallel_gptmodel_from_config(tfconfig,
     transformer_layer_spec = get_gpt_decoder_block_spec(tfconfig, use_transformer_engine=use_te)
     rope_scaling_args = {}
     if hf_config.rope_scaling is not None:
-        assert hf_config.rope_scaling['type'] == 'linear', "only linear scaling is supported for now"
-        rope_scaling_args['seq_len_interpolation_factor'] = hf_config.rope_scaling['factor']
+        # Check for either 'type' or 'rope_type' in the rope_scaling dictionary
+        if 'type' in hf_config.rope_scaling:
+            assert hf_config.rope_scaling['type'] == 'linear', "only linear scaling is supported for now"
+            rope_scaling_args['seq_len_interpolation_factor'] = hf_config.rope_scaling['factor']
+        elif 'rope_type' in hf_config.rope_scaling and 'factor' in hf_config.rope_scaling:
+            # For Llama 3.2 which uses 'rope_type' instead of 'type'
+            rope_scaling_args['seq_len_interpolation_factor'] = hf_config.rope_scaling['factor']
+        else:
+            print("Warning: Unsupported rope_scaling configuration")
     parallel_model = GPTModel(config=tfconfig,
                               transformer_layer_spec=transformer_layer_spec,
                               vocab_size=hf_config.vocab_size,
