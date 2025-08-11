@@ -491,7 +491,7 @@ def load_megatron_optimizer(optimizers):
 
     for _opt in _iter_opts(optimizers):
         load_megatron_copy_params(_opt)
-        if hasattr(_opt.optimizer, '_move_new_state_to_right_device'):
+        if hasattr(_opt.optimizer, "_move_new_state_to_right_device"):
             _opt.optimizer._move_new_state_to_right_device()
         else:
             opt_state_dict_values = _opt.optimizer.state.values()
