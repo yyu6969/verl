@@ -23,11 +23,14 @@ and the megatron backend now has a wider list of models supported:
 
 ## Getting Started
 
-### DeepSeek 671b
-
+### preparation
 The recommended image with pre-built Megatron dependency is `verlai/verl:app-verl0.4-vllm0.8.5-mcore0.13.0-preview`, which is built using the Dockerfile at [docker/verl0.4-cu124-torch2.6-fa2.7.4/Dockerfile.app.vllm.mcore0.13.preview](https://github.com/volcengine/verl/blob/main/docker/verl0.4-cu124-torch2.6-fa2.7.4/Dockerfile.app.vllm.mcore0.13.preview).
 
-To perform end-to-end training on the DAPO dataset, run [recipe/dapo/test_dapo_dspk_671b_megatron.sh](https://github.com/volcengine/verl/blob/main/recipe/dapo/test_dapo_dspk_671b_megatron.sh). With `OFFLOAD_FRACTION=1`, it can run on as few as 96 H20(96GB) GPUs. However, this configuration will use 1.5TB CPU memory per node. If you run out of CPU memory or require faster generation, you can add more nodes.
+With `OFFLOAD_FRACTION=1`, the system's minimum requirements are lowered. It can run on as few as 96 H20 (96GB) GPUs for DeepSeek-V3, and on as few as 32 H20 (96GB) GPUs for Qwen3-235B-A22B. However, this configuration will use 1.6TB CPU memory per node. If you run out of CPU memory or require faster training speed, you can add more nodes.
+
+### DeepSeek 671b
+
+For DeepSeek-V3 671b, please refer to [examples/grpo_trainer/run_deepseek671b_math_megatron.sh](https://github.com/volcengine/verl/blob/main/examples/grpo_trainer/run_deepseek671b_math_megatron.sh).
 
 MTP and quantilization is disabled during RL training.
 
@@ -41,7 +44,7 @@ To train your project, configure the following environment variables based on th
 
 ### Qwen3 235b
 
-For Qwen3-235b, please refer to [examples/grpo_trainer/run_qwen3-236b_megatron.sh](https://github.com/volcengine/verl/blob/main/examples/grpo_trainer/run_qwen3-236b_megatron.sh), which can run with just 32 H20(96GB) GPUs.
+For Qwen3-235b, please refer to [examples/grpo_trainer/run_qwen3-236b_megatron.sh](https://github.com/volcengine/verl/blob/main/examples/grpo_trainer/run_qwen3-236b_megatron.sh).
 
 To train your project, configure the following environment variables based on the number of available GPUs. These are recommended settings and can be adjusted based on your specific hardware.
 | num gpus | NNODES | TP | PP | EP | OFFLOAD_FRACTION | OFFLOAD_OPTIM | LAST_LAYER |
