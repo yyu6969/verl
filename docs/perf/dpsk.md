@@ -11,6 +11,7 @@ In the journey the community added the following features and optimizations that
 - reduced ray-related serialization overhead
 - optimizer offloading, recomputation, and efficient kernels
 - various debugging metrics and utils
+- hybrid optimizer
 
 and the megatron backend now has a wider list of models supported:
 - DeepSeek-V3
@@ -24,19 +25,32 @@ and the megatron backend now has a wider list of models supported:
 
 ### DeepSeek 671b
 
-The recommended image with pre-built megatron dependency is `whatcanyousee/verl:ngc-cu124-vllm0.8.5-sglang0.4.6.post5-mcore0.12.2-te2.3-deepseekv3`, built with the Dockerfile in [docker/Dockerfile.vllm.sglang.megatron.deepseek](https://github.com/volcengine/verl/blob/main/docker/Dockerfile.vllm.sglang.megatron.deepseek).
+The recommended image with pre-built Megatron dependency is `verlai/verl:app-verl0.4-vllm0.8.5-mcore0.13.0-preview`, which is built using the Dockerfile at [docker/verl0.4-cu124-torch2.6-fa2.7.4/Dockerfile.app.vllm.mcore0.13.preview](https://github.com/volcengine/verl/blob/main/docker/verl0.4-cu124-torch2.6-fa2.7.4/Dockerfile.app.vllm.mcore0.13.preview).
 
-For checkpoint loading, we rely on megatron dist-ckpt for resharding. A converted dist-ckpt for DeepSeek-V3 is available from [huggingface BearBiscuit05/dpsk-v3-671B-BF16-dist_ckpt](https://huggingface.co/BearBiscuit05/dpsk-v3-671B-BF16-dist_ckpt/tree/main).
+To perform end-to-end training on the DAPO dataset, run [recipe/dapo/test_dapo_dspk_671b_megatron.sh](https://github.com/volcengine/verl/blob/main/recipe/dapo/test_dapo_dspk_671b_megatron.sh). With `OFFLOAD_FRACTION=1`, it can run on as few as 96 H20(96GB) GPUs. However, this configuration will use 1.5TB CPU memory per node. If you run out of CPU memory or require faster generation, you can add more nodes.
 
-To run end-to-end training on the DAPO dataset, run [recipe/dapo/test_dapo_dspk_671b_megatron.sh](https://github.com/volcengine/verl/blob/main/recipe/dapo/test_dapo_dspk_671b_megatron.sh). It runs on 512 H20(96GB) GPUs with the following setup:
-- vllm rollout with TP=32, bfloat16
-- megatron training with attention DP, MoE EP=32, PP=16, bfloat16
+MTP and quantilization is disabled during RL training.
 
-MTP is disabled during RL training.
+To train your project, configure the following environment variables based on the number of available GPUs. These are recommended settings and can be adjusted based on your specific hardware.
+| num gpus | NNODES | TP | PP | EP | OFFLOAD_FRACTION | OFFLOAD_OPTIM | LAST_LAYER |
+| -- | -- | -- | -- | -- | -- | -- | -- |
+| 96 | 12 | 8 | 12 | 8 | 1. | False | 6 |
+| 128 | 16 | 8 | 16 | 8 | 0.5 | True | 1 |
+| 256 | 32 | 8 | 16 | 8 | 8 | 0. | True | 1 |
+| 512 | 64 | 1 | 16 | 32 | 0 | True | 1 |
 
-### Qwen3 236b
+### Qwen3 235b
 
-For Qwen3-236b, please refer to [examples/grpo_trainer/run_qwen3-236b_megatron.sh](https://github.com/volcengine/verl/blob/main/examples/grpo_trainer/run_qwen3-236b_megatron.sh), which runs on 128 H20(96GB) GPUs.
+For Qwen3-235b, please refer to [examples/grpo_trainer/run_qwen3-236b_megatron.sh](https://github.com/volcengine/verl/blob/main/examples/grpo_trainer/run_qwen3-236b_megatron.sh), which can run with just 32 H20(96GB) GPUs.
+
+To train your project, configure the following environment variables based on the number of available GPUs. These are recommended settings and can be adjusted based on your specific hardware.
+| num gpus | NNODES | TP | PP | EP | OFFLOAD_FRACTION | OFFLOAD_OPTIM | LAST_LAYER |
+| -- | -- | -- | -- | -- | -- | -- | -- |
+| 32 | 4 | 4 | 8 | 4 | 1. | False | 6 |
+| 64 | 8 | 4 | 8 | 4 | 0.5 | True | 6 |
+| 128 | 16 | 4 | 8 | 4 | 0 | True | 6 |
+| 256 | 32 | 4 | 8 | 4 | 0 | True | 6 |
+
 
 ## Upcoming Optimizations
 
@@ -48,4 +62,4 @@ The community continue to optimize large MoE models further, ongoing efforts inc
 We invite the community to try and improve verl together. Get connected with us on [slack](https://join.slack.com/t/verlgroup/shared_invite/zt-2w5p9o4c3-yy0x2Q56s_VlGLsJ93A6vA)/[wechat](https://raw.githubusercontent.com/eric-haibin-lin/verl-community/refs/heads/main/WeChat.JPG)/[Github issues](https://github.com/volcengine/verl/issues/708)!
 
 ## Acknowledgement
-@vermouth1992 @ISEEKYAN @ETOgaosion @yzlnew @ShareLer @BearBiscuit05 @ccclyu @ann-qin-lu @SwordFaith @zzong2006 @zhaochenyang20 @ocss884 @eric-haibin-lin
+@vermouth1992 @ISEEKYAN @ETOgaosion @yzlnew @ShareLer @BearBiscuit05 @ccclyu @ann-qin-lu @SwordFaith @zzong2006 @zhaochenyang20 @ocss884 @eric-haibin-lin @chenhaiq @techkang

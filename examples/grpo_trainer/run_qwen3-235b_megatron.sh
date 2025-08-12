@@ -26,24 +26,22 @@ clip_ratio_high=0.28
 max_prompt_length=$((1024 * 2))
 max_response_length=$((1204 * 8))
 enable_overlong_buffer=True
-overlong_buffer_len=$((1024 * 4))
+overlong_buffer_len=$((1024 * 1))
 overlong_penalty_factor=1.0
 
 loss_agg_mode="token-mean"
 
-train_prompt_bsz=96
+train_prompt_bsz=${TRAIN_BS:-32}
 n_resp_per_prompt=8
-train_prompt_mini_bsz=32
+train_prompt_mini_bsz=16
 
-
-# minimum nodes for DeepSeek-V3: 12 nodes
-NNODES=${NNODES:-12}
+# minimum nodes need for qwen3-235B-A22B
+NNODES=${NNODES:-4}
+# Paths
 
 RAY_DATA_HOME=${RAY_DATA_HOME:-"${HOME}/verl"}
 
-# remove the `quantization_config` in the `config.json` and 
-# set `num_nextn_predict_layers=0` to disable MTP, which is not currently supported
-MODEL_PATH=$RAY_DATA_HOME/models/DeepSeek-V3-config-verl
+MODEL_PATH=$RAY_DATA_HOME/models/Qwen3-235B-A22B
 
 CKPTS_DIR=$RAY_DATA_HOME/ckpt/${project_name}/${exp_name}
 TRAIN_FILE=$RAY_DATA_HOME/dataset/dapo-math-17k.parquet
@@ -54,29 +52,28 @@ temperature=1.0
 top_p=1.0
 top_k=-1 # 0 for HF rollout, -1 for vLLM rollout
 val_top_p=0.7
-
 # Performance Related Parameter
 use_dynamic_bsz=True
 actor_ppo_max_token_len=$(((max_prompt_length + max_response_length) * 10 / 10))
 infer_ppo_max_token_len=$(((max_prompt_length + max_response_length) * 1))
 offload=True
-optim_offload=${OFFLOAD_OPTIM:-True}
-gen_tp=32
-train_tp=${TP:-8}
-train_pp=${PP:-12}
+OPTIM_OFFLOAD=${OPTIM_OFFLOAD:-True}
+gen_tp=16
+train_tp=${TP:-4}
+train_pp=${PP:-8}
 
-EP=${EP:-8}
+EP=${EP:-4}
 ETP=1
 CP=1
 optimizer_offload_fraction=${OFFLOAD_FRACTION:-1.}
-last_layer=${LAST_LAYER:-6}
+last_layer=${LAST_LAYER:-10}
 
-
-project_name='verl-deepseek-v3'
-exp_name="671B-${NNODES}-pp${train_pp}-tp${train_tp}-ep${EP}-actor-length${actor_ppo_max_token_len}"
+project_name='verl-qwen3'
+exp_name="235B-${NNODES}-pp${train_pp}-tp${train_tp}-ep${EP}-actor-length${actor_ppo_max_token_len}"
 CKPTS_DIR="/file_system/kangsheng/checkpoints/ckpts/${project_name}/${exp_name}"
 
 # TODO: support dynamic_bsz for megatron
+    # actor_rollout_ref.rollout.cudagraph_capture_sizes=[1,2,4,8,16,32] \
 
 python3 -m verl.trainer.main_ppo \
     --config-path=config \
@@ -90,6 +87,7 @@ python3 -m verl.trainer.main_ppo \
     data.train_batch_size=${train_prompt_bsz} \
     actor_rollout_ref.rollout.n=${n_resp_per_prompt} \
     actor_rollout_ref.rollout.name=vllm \
+    actor_rollout_ref.rollout.enforce_eager=True \
     algorithm.adv_estimator=${adv_estimator} \
     algorithm.use_kl_in_reward=${use_kl_in_reward} \
     algorithm.kl_ctrl.kl_coef=${kl_coef} \
@@ -119,7 +117,7 @@ python3 -m verl.trainer.main_ppo \
     +actor_rollout_ref.actor.optim.override_optimizer_config.optimizer_cpu_offload=True \
     actor_rollout_ref.actor.ppo_mini_batch_size=${train_prompt_mini_bsz} \
     actor_rollout_ref.actor.megatron.param_offload=${offload} \
-    actor_rollout_ref.actor.megatron.optimizer_offload=${optim_offload} \
+    actor_rollout_ref.actor.megatron.optimizer_offload=${OPTIM_OFFLOAD} \
     actor_rollout_ref.actor.megatron.grad_offload=${offload} \
     actor_rollout_ref.actor.megatron.pipeline_model_parallel_size=${train_pp} \
     actor_rollout_ref.actor.megatron.tensor_model_parallel_size=${train_tp} \
@@ -129,7 +127,7 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.actor.entropy_coeff=0 \
     actor_rollout_ref.actor.optim.clip_grad=1.0 \
     actor_rollout_ref.actor.loss_agg_mode=${loss_agg_mode} \
-    actor_rollout_ref.rollout.gpu_memory_utilization=0.6 \
+    actor_rollout_ref.rollout.gpu_memory_utilization=0.85 \
     actor_rollout_ref.rollout.tensor_model_parallel_size=${gen_tp} \
     actor_rollout_ref.rollout.enable_chunked_prefill=True \
     actor_rollout_ref.rollout.max_num_batched_tokens=$((max_prompt_length + max_response_length)) \
@@ -142,7 +140,6 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.rollout.val_kwargs.top_k=${top_k} \
     actor_rollout_ref.rollout.val_kwargs.do_sample=True \
     actor_rollout_ref.rollout.val_kwargs.n=1 \
-    actor_rollout_ref.rollout.enforce_eager=True \
     actor_rollout_ref.ref.megatron.pipeline_model_parallel_size=${train_pp} \
     actor_rollout_ref.ref.megatron.tensor_model_parallel_size=${train_tp} \
     actor_rollout_ref.ref.megatron.expert_model_parallel_size=$EP \
@@ -161,7 +158,7 @@ python3 -m verl.trainer.main_ppo \
     +actor_rollout_ref.actor.megatron.override_transformer_config.moe_permute_fusion=True \
     +actor_rollout_ref.actor.megatron.override_transformer_config.account_for_embedding_in_pipeline_split=False \
     +actor_rollout_ref.actor.megatron.override_transformer_config.account_for_loss_in_pipeline_split=False \
-    +actor_rollout_ref.actor.megatron.override_transformer_config.num_layers_in_last_pipeline_stage=${LAST_LAYER} \
+    +actor_rollout_ref.actor.megatron.override_transformer_config.num_layers_in_last_pipeline_stage=${last_layer} \
     reward_model.reward_manager=dapo \
     +reward_model.reward_kwargs.overlong_buffer_cfg.enable=${enable_overlong_buffer} \
     +reward_model.reward_kwargs.overlong_buffer_cfg.len=${overlong_buffer_len} \
