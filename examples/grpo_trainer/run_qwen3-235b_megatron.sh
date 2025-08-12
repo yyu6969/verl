@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 set -xeuo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-[ -f "${SCRIPT_DIR}/env.sh" ] && source "${SCRIPT_DIR}/env.sh"
-
 ## !!!!!!!important!!!!!!
 ## set the following environment variables on all your nodes
 # env_vars:
@@ -12,6 +9,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 #   VLLM_USE_V1: 1
 # install mbridge=0.1.13 on all your node with the following command: 
 # pip3 install git+https://github.com/ISEEKYAN/mbridge
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+[ -f "${SCRIPT_DIR}/env.sh" ] && source "${SCRIPT_DIR}/env.sh"
 
 adv_estimator=grpo
 

@@ -1,17 +1,19 @@
 #!/usr/bin/env bash
 set -xeuo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-[ -f "${SCRIPT_DIR}/env.sh" ] && source "${SCRIPT_DIR}/env.sh"
-
 ## !!!!!!!important!!!!!!
-## set the following environment variables on all your nodes
+# 1. set the following environment variables on all your nodes
 # env_vars:
 #   CUDA_DEVICE_MAX_CONNECTIONS: "1"
 #   NCCL_NVLS_ENABLE: "0"
 #   VLLM_USE_V1: 1
-# install mbridge=0.1.13 on all your node with the following command: 
+# 2. install mbridge=0.1.13 on all your node with the following command: 
 # pip3 install git+https://github.com/ISEEKYAN/mbridge
+# 3. remove the `quantization_config` in the DeepSeek-V3's `config.json` and 
+# set `num_nextn_predict_layers=0` to disable MTP, which is not currently supported
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+[ -f "${SCRIPT_DIR}/env.sh" ] && source "${SCRIPT_DIR}/env.sh"
 
 adv_estimator=grpo
 
@@ -41,8 +43,6 @@ NNODES=${NNODES:-12}
 
 RAY_DATA_HOME=${RAY_DATA_HOME:-"${HOME}/verl"}
 
-# remove the `quantization_config` in the `config.json` and 
-# set `num_nextn_predict_layers=0` to disable MTP, which is not currently supported
 MODEL_PATH=$RAY_DATA_HOME/models/DeepSeek-V3-config-verl
 
 TRAIN_FILE=$RAY_DATA_HOME/dataset/dapo-math-17k.parquet

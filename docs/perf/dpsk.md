@@ -30,7 +30,7 @@ With `OFFLOAD_FRACTION=1`, the system's minimum requirements are lowered. It can
 
 ### DeepSeek 671b
 
-For DeepSeek-V3 671b, please refer to [examples/grpo_trainer/run_deepseek671b_math_megatron.sh](https://github.com/volcengine/verl/blob/main/examples/grpo_trainer/run_deepseek671b_math_megatron.sh).
+For DeepSeek-V3 671b, please refer to [examples/grpo_trainer/run_deepseek671b_math_megatron_96gb.sh](https://github.com/volcengine/verl/blob/main/examples/grpo_trainer/run_deepseek671b_math_megatron_96gb.sh).
 
 MTP and quantilization is disabled during RL training.
 
