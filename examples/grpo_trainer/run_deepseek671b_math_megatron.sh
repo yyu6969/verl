@@ -45,7 +45,6 @@ RAY_DATA_HOME=${RAY_DATA_HOME:-"${HOME}/verl"}
 # set `num_nextn_predict_layers=0` to disable MTP, which is not currently supported
 MODEL_PATH=$RAY_DATA_HOME/models/DeepSeek-V3-config-verl
 
-CKPTS_DIR=$RAY_DATA_HOME/ckpt/${project_name}/${exp_name}
 TRAIN_FILE=$RAY_DATA_HOME/dataset/dapo-math-17k.parquet
 TEST_FILE=$RAY_DATA_HOME/dataset/aime-2024.parquet
 
@@ -74,7 +73,7 @@ last_layer=${LAST_LAYER:-6}
 
 project_name='verl-deepseek-v3'
 exp_name="671B-${NNODES}-pp${train_pp}-tp${train_tp}-ep${EP}-actor-length${actor_ppo_max_token_len}"
-CKPTS_DIR="/file_system/kangsheng/checkpoints/ckpts/${project_name}/${exp_name}"
+CKPTS_DIR=$RAY_DATA_HOME/ckpt/${project_name}/${exp_name}
 
 # TODO: support dynamic_bsz for megatron
 

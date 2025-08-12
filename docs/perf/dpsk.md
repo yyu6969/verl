@@ -39,12 +39,12 @@ To train your project, configure the following environment variables based on th
 | -- | -- | -- | -- | -- | -- | -- | -- |
 | 96 | 12 | 8 | 12 | 8 | 1. | False | 6 |
 | 128 | 16 | 8 | 16 | 8 | 0.5 | True | 1 |
-| 256 | 32 | 8 | 16 | 8 | 8 | 0. | True | 1 |
+| 256 | 32 | 8 | 16 | 8 | 0. | True | 1 |
 | 512 | 64 | 1 | 16 | 32 | 0 | True | 1 |
 
 ### Qwen3 235b
 
-For Qwen3-235b, please refer to [examples/grpo_trainer/run_qwen3-236b_megatron.sh](https://github.com/volcengine/verl/blob/main/examples/grpo_trainer/run_qwen3-236b_megatron.sh).
+For Qwen3-235b, please refer to [examples/grpo_trainer/run_qwen3-235b_megatron.sh](https://github.com/volcengine/verl/blob/main/examples/grpo_trainer/run_qwen3-235b_megatron.sh).
 
 To train your project, configure the following environment variables based on the number of available GPUs. These are recommended settings and can be adjusted based on your specific hardware.
 | num gpus | NNODES | TP | PP | EP | OFFLOAD_FRACTION | OFFLOAD_OPTIM | LAST_LAYER |

@@ -43,7 +43,6 @@ RAY_DATA_HOME=${RAY_DATA_HOME:-"${HOME}/verl"}
 
 MODEL_PATH=$RAY_DATA_HOME/models/Qwen3-235B-A22B
 
-CKPTS_DIR=$RAY_DATA_HOME/ckpt/${project_name}/${exp_name}
 TRAIN_FILE=$RAY_DATA_HOME/dataset/dapo-math-17k.parquet
 TEST_FILE=$RAY_DATA_HOME/dataset/aime-2024.parquet
 
@@ -70,7 +69,7 @@ last_layer=${LAST_LAYER:-10}
 
 project_name='verl-qwen3'
 exp_name="235B-${NNODES}-pp${train_pp}-tp${train_tp}-ep${EP}-actor-length${actor_ppo_max_token_len}"
-CKPTS_DIR="/file_system/kangsheng/checkpoints/ckpts/${project_name}/${exp_name}"
+CKPTS_DIR=$RAY_DATA_HOME/ckpt/${project_name}/${exp_name}
 
 # TODO: support dynamic_bsz for megatron
     # actor_rollout_ref.rollout.cudagraph_capture_sizes=[1,2,4,8,16,32] \
