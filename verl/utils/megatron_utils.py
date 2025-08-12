@@ -491,6 +491,7 @@ def load_megatron_optimizer(optimizers):
 
     for _opt in _iter_opts(optimizers):
         load_megatron_copy_params(_opt)
+        # if we are using HybridDeviceOptimizer, we need to only move gpu optimizer state to gpu
         if hasattr(_opt.optimizer, "_move_new_state_to_right_device"):
             _opt.optimizer._move_new_state_to_right_device()
         else:

@@ -71,8 +71,9 @@ project_name='verl-qwen3'
 exp_name="235B-${NNODES}-pp${train_pp}-tp${train_tp}-ep${EP}-actor-length${actor_ppo_max_token_len}"
 CKPTS_DIR=$RAY_DATA_HOME/ckpt/${project_name}/${exp_name}
 
-# TODO: support dynamic_bsz for megatron
-    # actor_rollout_ref.rollout.cudagraph_capture_sizes=[1,2,4,8,16,32] \
+# TODO: support cuda graph for rollout by setting the following config
+    # actor_rollout_ref.rollout.cudagraph_capture_sizes=[1,2,4,8,16,32]
+    # actor_rollout_ref.rollout.enforce_eager=False
 
 python3 -m verl.trainer.main_ppo \
     --config-path=config \
@@ -164,7 +165,7 @@ python3 -m verl.trainer.main_ppo \
     +reward_model.reward_kwargs.overlong_buffer_cfg.penalty_factor=${overlong_penalty_factor} \
     +reward_model.reward_kwargs.overlong_buffer_cfg.log=False \
     +reward_model.reward_kwargs.max_resp_len=${max_response_length} \
-    trainer.logger=['console','vemlp_wandb'] \
+    trainer.logger=['console','wandb'] \
     trainer.project_name="${project_name}" \
     trainer.experiment_name="${exp_name}" \
     trainer.n_gpus_per_node=8 \
