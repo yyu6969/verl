@@ -126,3 +126,6 @@ logs
 log
 outputs
 .history
+
+/data
+verl_ngc-th2.8.0-cu12.9-vllm0.11.0.sif
