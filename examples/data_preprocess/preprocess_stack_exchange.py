@@ -20,8 +20,8 @@ def main():
     args = parser.parse_args()
 
     # --- Configuration ---
-    dataset_name = "yvngexe/stack-exchange-paired-v0"
-    config_name = "rl_deduplicate_shuffled_20000"
+    dataset_name = "yvngexe/stack-exchange-paired-v1"
+    config_name = None
     model_path = "Qwen/Qwen2.5-3B-Instruct"  # Use the same tokenizer as the model
     
     print(f"Loading tokenizer for '{model_path}'...")
