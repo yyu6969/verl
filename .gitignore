@@ -133,3 +133,5 @@ cuda-repo-ubuntu2204-12-8-local_12.8.1-570.124.06-1_amd64.deb
 cudnn-local-repo-ubuntu2204-9.10.2_1.0-1_amd64.deb
 flash_attn-2.8.1+cu12torch2.8cxx11abiFALSE-cp312-cp312-linux_x86_64.whl
 flash_attn-2.8.1+cu12torch2.8cxx11abiFALSE-cp312-cp312-linux_x86_64.whl.1
+flash_attn-2.8.1+cu12torch2.8cxx11abiFALSE-cp312-cp312-linux_x86_64.whl.2
+flash_attn-2.8.1+cu12torch2.8cxx11abiFALSE-cp312-cp312-linux_x86_64.whl.3

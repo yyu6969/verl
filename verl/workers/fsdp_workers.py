@@ -1913,7 +1913,7 @@ class RewardModelWorker(Worker, DistProfilerExtension):
 
             token_level_scores = self._expand_to_token_level(data, scores)
             # Note that this is only the scores, may not be the final rewards used to train RL
-            output = DataProto.from_dict(tensors={"rm_scores": token_level_scores})
+            output = DataProto.from_dict(tensors={"rm_scores": token_level_scores, "raw_rm_scores": scores})
 
         # https://pytorch.org/docs/stable/notes/fsdp.html#fsdp-notes
         # unshard the root FSDP module

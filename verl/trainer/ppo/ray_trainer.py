@@ -552,7 +552,8 @@ class RayPPOTrainer:
             )
 
             # we only do validation on rule-based rm
-            if self.config.reward_model.enable and test_batch[0].non_tensor_batch["reward_model"]["style"] == "model":
+            rm_info = test_batch[0].non_tensor_batch.get("reward_model", {})
+            if self.config.reward_model.enable and rm_info.get("style") == "model":
                 return {}
 
             # Store original inputs

@@ -330,6 +330,66 @@ class FullyAsyncTrainer(FullyAsyncRayPPOTrainer):
             for key, value in batch.meta_info.items():
                 if key.startswith("fully_async"):
                     metrics[key] = value
+            
+            # Extract agent loop generation latency metrics
+            if "metrics" in batch.meta_info and batch.meta_info["metrics"]:
+                import numpy as np
+                
+                agent_metrics = batch.meta_info["metrics"]
+                
+                # DEBUG: Print what we received
+                print(f"[DEBUG] agent_metrics type: {type(agent_metrics)}")
+                if isinstance(agent_metrics, dict):
+                     print(f"[DEBUG] agent_metrics keys: {list(agent_metrics.keys())}")
+
+                # The metrics are already aggregated into a dictionary like:
+                # {'generate_sequences': [t1, t2, ...], 'tool_calls': [c1, c2, ...]}
+                if isinstance(agent_metrics, dict) and "generate_sequences" in agent_metrics:
+                    t_generate_sequences = np.array(agent_metrics["generate_sequences"])
+                    t_tool_calls = np.array(agent_metrics.get("tool_calls", [0.0] * len(t_generate_sequences)))
+                    
+                    # DEBUG: Print extracted values
+                    print(f"[DEBUG] t_generate_sequences: min={t_generate_sequences.min():.4f}, max={t_generate_sequences.max():.4f}, mean={t_generate_sequences.mean():.4f}")
+                    
+                    # Compute timing metrics
+                    timing_metrics = {
+                        # Per-batch statistics
+                        "agent_loop/generate_sequences/min": float(t_generate_sequences.min()),
+                        "agent_loop/generate_sequences/max": float(t_generate_sequences.max()),
+                        "agent_loop/generate_sequences/mean": float(t_generate_sequences.mean()),
+                        "agent_loop/tool_calls/min": float(t_tool_calls.min()),
+                        "agent_loop/tool_calls/max": float(t_tool_calls.max()),
+                        "agent_loop/tool_calls/mean": float(t_tool_calls.mean()),
+                        
+                        # ⭐ ADD: Cumulative sum of means (will be summed across batches)
+                        "agent_loop/generate_sequences/sum": float(t_generate_sequences.mean()),
+                        "agent_loop/tool_calls/sum": float(t_tool_calls.mean()),
+                    }
+                    
+                    # Find the slowest sample
+                    total_times = t_generate_sequences + t_tool_calls
+                    slowest_idx = np.argmax(total_times)
+                    
+                    # Ensure slowest_idx is within bounds of attention_mask
+                    if slowest_idx < len(batch.batch["attention_mask"]):
+                        attention_mask = batch.batch["attention_mask"][slowest_idx]
+                        prompt_length = batch.batch["prompts"].shape[1]
+                        
+                        timing_metrics.update({
+                            "agent_loop/slowest/generate_sequences": float(t_generate_sequences[slowest_idx]),
+                            "agent_loop/slowest/tool_calls": float(t_tool_calls[slowest_idx]),
+                            "agent_loop/slowest/prompt_length": int(attention_mask[:prompt_length].sum().item()),
+                            "agent_loop/slowest/response_length": int(attention_mask[prompt_length:].sum().item()),
+                        })
+                    
+                    # DEBUG: Print final metrics before adding
+                    print(f"[DEBUG] Agent loop timing metrics: {timing_metrics}")
+                    
+                    metrics.update(timing_metrics)
+                else:
+                    print(f"[DEBUG] agent_metrics is not a dict or does not contain 'generate_sequences'")
+            else:
+                print(f"[DEBUG] 'metrics' not in batch.meta_info or is empty")
 
     def _trigger_parameter_sync_after_step(self, validate: bool = False, global_steps: int = None):
         """
